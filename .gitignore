@@ -127,3 +127,5 @@ fabric.properties
 
 /.idea/
 /camunda-spring-boot.iml
+
+/target/

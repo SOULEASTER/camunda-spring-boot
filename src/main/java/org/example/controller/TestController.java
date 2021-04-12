@@ -23,6 +23,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.Resource;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 
 /**
@@ -78,13 +80,53 @@ public class TestController {
 //        file.delete();
 //        file.deleteOnExit();
 
-        repositoryService.createDeployment().addModelInstance("process-with-one-task", modelInstance).deploy();
+        // write to output stream
+//        OutputStream outputStream = new OutputStream(...);
+//        Bpmn.writeModelToStream(outputStream, modelInstance);
+
+        repositoryService.createDeployment().addModelInstance("process-with-one-task1", modelInstance).deploy();
 
     }
 
     @ApiOperation(value = "createModelByFluent")
     @RequestMapping(value = "/createModelByFluent", method = RequestMethod.POST)
-    public void createModelByFluent() {
+    public void createModelByFluent() throws FileNotFoundException {
+        BpmnModelInstance bpmnModelInstance = Bpmn.createProcess()
+                .id("aaa")
+                .name("my-process")
+                .executable()
+                .startEvent()
+                    .name("start")
+                .userTask()
+                    .id("user1")
+                    .name("ceshi1")
+                .endEvent()
+                    .name("end")
+                .done();
+        Bpmn.validateModel(bpmnModelInstance);
+
+
+        String name ="fluent-add-" + System.currentTimeMillis() + ".bpmn";
+        File file = new File("/Users/w.rajer/Development/IdeaProjects/PersonalDemo/camunda-spring-boot/src/main/resources/" + name);
+        Bpmn.writeModelToFile(file, bpmnModelInstance);
+        repositoryService.createDeployment()
+                .name(name)
+                .addInputStream(name, new FileInputStream(file))
+                .deploy();
+
+
+//        OutputStream outputStream = new FileOutputStream("/Users/w.rajer/Development/IdeaProjects/PersonalDemo/camunda-spring-boot/src/main/resources/" + name);
+//        Bpmn.writeModelToStream(outputStream, bpmnModelInstance);
+//
+//        repositoryService.createDeployment()
+//                .name("ceshi1")
+//                .addInputStream("ceshi1", new FileInputStream("/Users/w.rajer/Development/IdeaProjects/PersonalDemo/camunda-spring-boot/src/main/resources/" + name))
+//                .deploy();
+
+
+        // 启动
+//        runtimeService.startProcessInstanceByKey("aaa");
+
 
     }
 
