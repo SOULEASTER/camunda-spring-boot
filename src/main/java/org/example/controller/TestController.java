@@ -61,6 +61,7 @@ public class TestController {
 
         // create the process
         Process process = createElement(definitions, "process-with-one-task", Process.class);
+        process.setExecutable(true);
 
         // create start event, user task and end event
         StartEvent startEvent = createElement(process, "start", StartEvent.class);
@@ -74,8 +75,9 @@ public class TestController {
 
         // validate and write model to file
         Bpmn.validateModel(modelInstance);
-        File folders = new File("/Users/w.rajer/Development/IdeaProjects/PersonalDemo/camunda-spring-boot/src/main/resources");
-        File file = File.createTempFile("new", ".bpmn", folders);
+
+        String name ="add-" + System.currentTimeMillis() + ".bpmn";
+        File file = new File("/Users/w.rajer/Development/IdeaProjects/PersonalDemo/camunda-spring-boot/src/main/resources/" + name);
         Bpmn.writeModelToFile(file, modelInstance);
 //        file.delete();
 //        file.deleteOnExit();
@@ -84,7 +86,10 @@ public class TestController {
 //        OutputStream outputStream = new OutputStream(...);
 //        Bpmn.writeModelToStream(outputStream, modelInstance);
 
-        repositoryService.createDeployment().addModelInstance("process-with-one-task1", modelInstance).deploy();
+        repositoryService.createDeployment()
+                .name(name)
+                .addModelInstance(name, modelInstance)
+                .deploy();
 
     }
 
